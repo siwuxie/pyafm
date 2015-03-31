@@ -5,7 +5,8 @@ class msg_gen:
 	def __init__(self, modullist):
 		self.mods = {}
 		for item in modullist:
-			self.mods[item['head']]=item
+			self.mods[item['head_name']]=item
+		print(self.mods)
 
 	def praser(self, para):
 		temp = hex(int(para)).replace('0x','')
@@ -14,7 +15,7 @@ class msg_gen:
 
 	def  generator(self):
 		while True:
-			msgstr = raw_input("Pleas input your mssages to AFM:\t").spilt('\t').replace('\n','')
+			msgstr = raw_input("Pleas input your mssages to AFM:\t").replace('\n','').split(' ')
 			if len(msgstr) != 6:
 				sys.stdout.write('Wrong Cmd!\t')
 				continue
@@ -43,14 +44,31 @@ class msg_handler:
 	def msgdeliver(self, msg):
 		pass
 
-	def msgsendout(self, msg):
+	def msgsendout(self):
+		pass
+
+	def _getmsglist(self, raw_msg):
+		count = len(raw_msg)/10
+		result = [ raw_msg[10(i-1):10*i] for i in range(1,count+1) ]
+		return result
 		pass
 
 	def serialReadandSend(self):
-		while 1:
+		while True:
 			
-			msg = self.com.read(10)
-			
-			
+			count = self.com.inWaiting()
+			if self.com.inWaiting()>10:
+				msg = self.com.read(count - count%10)
+				msglist = self._getmsglist(msg)
+				self.msgdeliver(msglist)
 			self.msgdeliver(msg)
-			print(msg)
+			print(msglist)
+
+			
+			msglist = self.sendout()
+			for item in msglist:
+				self.com.write(item)
+		pass
+
+
+

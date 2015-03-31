@@ -4,6 +4,7 @@ Motor
 """
 
 motorCmdDict = {
+	'head_name':'motor',
 	'head': '\x00\x02',
 	'task': {
 	'move': '\x00',
