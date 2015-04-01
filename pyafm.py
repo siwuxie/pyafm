@@ -13,6 +13,10 @@ content_disp = \
 		"----------------------------------------------\n",
 	]
 
+system_disp = {
+	"last_command:":"None"
+}
+
 motor_status_disp = {
 	"Motor Position":0,
 	"Motor status":'Stop',
@@ -21,13 +25,16 @@ motor_status_disp = {
 class pyafm():
 	"""docstring for pyafm"""
 	def __init__(self):
-		self.pipe = dt.datathread('', 115200)
+		self.pipe = dt.datathread('/dev/ttyUSB0', 115200)
 
 	def fixed_display(self):
 		os.system('clear')
 		for item in content_disp:
 			sys.stdout.write(item)
+
 		self.status_display(motor_status_disp)
+
+		sys.stdout.write("Last command:\t\t"+str(self.pipe.last_content)+'\n')
 
 	def status_display(self, status_disp):
 		for item in status_disp.keys():
@@ -35,7 +42,8 @@ class pyafm():
 			sys.stdout.write(':\t\t'+str(status_disp[item])+"\n")
 
 	def waitinput(self):
-		case = raw_input('Please enter your selection:\t')
+		sys.stdout.write("Please enter your selection:\t")
+		case = raw_input()
 		if case == 'cmd':
 			self.pipe.cmdrequire()
 			return False
@@ -43,17 +51,16 @@ class pyafm():
 			return True
 
 	def work(self):
-		self.pipe.run()
-
+		self.pipe.start()
 		while True:
 			self.fixed_display()
-			flat = waitinput()
-			if flat:
+			flag = self.waitinput()
+			if flag:
+				self.pipe.stoploop()
 				break
-
 
 if __name__ == "__main__":
 	test = pyafm()
-	test.fixed_display()
+	test.work()
 
 		
