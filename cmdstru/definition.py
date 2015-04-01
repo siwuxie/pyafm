@@ -2,7 +2,6 @@
 """
 Motor
 """
-
 motorCmdDict = {
 	'head_name':'motor',
 	'head': '\x00\x02',
@@ -27,4 +26,8 @@ motorCmdDict = {
 }
 
 
+"""
+The modelist stru
+"""
+modelist = [motorCmdDict]
 		
