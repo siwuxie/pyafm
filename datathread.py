@@ -1,5 +1,3 @@
-#coding = utf8
-
 from threading import Thread
 from Queue import Queue
 from afmserial import msg_handler,msg_gen
@@ -11,19 +9,18 @@ class datathread(Thread, msg_handler):
 		Thread.__init__(self)
 		msg_handler.__init__(self, commName, commBrate)
 
-		# self.n = n #for test only
-
 		self.sendQ = Queue(maxsize = 20)
 		self.stopQ = Queue(maxsize = 1)
 
 		self.msgbuilder = msg_gen(modelist)
+		self.last_content = ''
 
 
 	def stoploop(self):
 		self.stopQ.put(True)
 
 	def cmdrequire(self):
-		cmd = self.msgbuilder.generator()
+		cmd, self.last_content = self.msgbuilder.generator()
 		self.sendQ.put(cmd)
 
 	def msgsendout(self):
@@ -31,12 +28,14 @@ class datathread(Thread, msg_handler):
 			return self.sendQ.get()
 		return None
 
+	def msgdeliver(self, msg):
+		self.last_content = msg
+
 	def run(self):
 
 		self.openSerial()
 
 		while True:
-			# print(str(self.n))
 			if not self.stopQ.empty():
 				print("The loop is stoped")
 				break
