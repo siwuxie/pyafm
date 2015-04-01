@@ -1,4 +1,5 @@
 from msg_stru import msg
+import definition as df
 
 class cmd_stru(msg):
 
