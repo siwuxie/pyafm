@@ -1,7 +1,7 @@
 from threading import Thread
 from Queue import Queue
 from afmserial import msg_handler,msg_gen
-from cmdstru.definition import modelist
+from cmdstru.definition import modelist,modedict
 
 class datathread(Thread, msg_handler):
 
@@ -14,6 +14,7 @@ class datathread(Thread, msg_handler):
 
 		self.msgbuilder = msg_gen(modelist)
 		self.last_content = ''
+		self.modedict = modedict
 
 
 	def stoploop(self):
@@ -30,6 +31,7 @@ class datathread(Thread, msg_handler):
 
 	def msgdeliver(self, msg):
 		self.last_content = msg
+		modedict[msg[0]+msg[1]].dispatch(msg)
 
 	def run(self):
 

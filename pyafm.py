@@ -32,7 +32,10 @@ class pyafm():
 		for item in content_disp:
 			sys.stdout.write(item)
 
-		self.status_display(motor_status_disp)
+		for item in self.pipe.modedict.keys():
+			for item2 in self.pipe.modedict[item].report_status.keys()
+				sys.stdout.write(item2)
+				sys.stdout.write(":\t\t"+str(self.pipe.modedict[item].report_status[item2]+'\n'))
 
 		sys.stdout.write("Last command:\t\t"+str(self.pipe.last_content)+'\n')
 

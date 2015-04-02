@@ -2,6 +2,7 @@
 """
 Motor
 """
+import motor
 motorCmdDict = {
 	'head_name':'motor',
 	'head': '\x00\x02',
@@ -22,12 +23,13 @@ motorCmdDict = {
 		'stop': '\x01',
 		'originate': '\x02',
 		'movement': '\x03',
-	}
+	},
 }
-
 
 """
 The modelist stru
 """
 modelist = [motorCmdDict]
-		
+modedict = {
+	motorCmdDict['head']:motor.Motor(motorCmdDict)
+}
