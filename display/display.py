@@ -1,9 +1,12 @@
 import sys,os
 import curses
+from threading import Thread
 
-class display:
+class display():
 	"""docstring for display"""
 	def __init__(self, screen, content, input_content, x, y):
+		Thread.__init__(self)
+
 		self.content = content
 		self.screen = screen
 		self.input_content = input_content
@@ -23,3 +26,8 @@ class display:
 		self.screen.addstr(self.y+self.lines, self.x, self.input_content)
 		inputstr = self.screen.getstr()
 		return inputstr.split(' ')
+
+	def updateContent(self, newcontent):
+		self.content = newcontent
+		self.lines = len(self.content)
+		pass

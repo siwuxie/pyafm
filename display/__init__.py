@@ -32,27 +32,27 @@ Display_class = {
 	'input': Input_display,
 }
 
-class StandaradDisplayThread(Thread):
+class displayThread(display, Thread):
 	
-	def __init__(self, init_content, sendQ, reciveQ, StopQ):
+	def __init__(self, screen, content, input_content, x, y, sendQ, reciveQ, screenlock):
+		display.__init__(self, screen, content, input_content, x, y)
 		Thread.__init__(self)
-		self.init_content = init_content
-		self.screen = curses.initscr()
+		
+		self.screenlock = screenlock
 		self.sendQ = sendQ
 		self.reciveQ = reciveQ
-		self.StopQ = StopQ
+		
+	def updateContent(self):
+		if not self.reciveQ.empty():
+			newcontent = self.reciveQ.get()
+			display.updateContent(newcontent)
 
-		self.logo = fixlogo_display(self.screen, init_content['logo'], [], 0 ,0)
-		self.status = SystemStatus_display(self.screen, init_content['status'], [], 0, len(init_content['logo']))
-		self.inputdis = Input_display(self.creen, [], 'Please enter the cmd:\t', 0, len(init_content['logo'])+len(init_content['status']))
-		self.refresh_total()
-
-	def refresh_total(self):
-		self.logo.displayContent()
-		self.status.displayContent()
-		self.inputdis.displayContent()
-
-	def run()
+	def run():
+		while True:
+			screenlock.acquire(blocking = True)
+			self.updateContent()
+			self.displayContent()
+			screenlock.release()
 
 
 if __name__ == "__main__":
