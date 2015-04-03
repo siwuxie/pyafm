@@ -1,6 +1,7 @@
 import serial
 from threading import Thread
 from Queue import Queue
+
 class transaction:
 
 	def __init__(self, name, brate):
