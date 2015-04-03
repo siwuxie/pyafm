@@ -1,28 +1,4 @@
-import sys,os
-import curses
-
-class display:
-	"""docstring for display"""
-	def __init__(self, screen, content, input_content, x, y):
-		self.content = content
-		self.screen = screen
-		self.input_content = input_content
-		self.lines = len(self.content)
-		curses.nocbreak()
-		self.x = x
-		self.y = y
-
-	def displayContent(self):
-		i = 0
-		for item in self.content:
-			self.screen.addstr(self.y+i, self.x, item[0] + str(item[1]))
-			i += 1
-		self.screen.refresh()
-
-	def getInput(self):
-		self.screen.addstr(self.y+self.lines, self.x, self.input_content)
-		inputstr = self.screen.getstr()
-		return inputstr.split(' ')
+from display import display
 
 class fixlogo_display(display):
 	"""docstring for fixlogo_display"""
@@ -45,7 +21,15 @@ class SystemStatus_display(display):
 	def getInput(self):
 		pass
 
+class Input_display(display):
+	"""docstring for Input_display"""
+	def __init__(self, screen, content, input_content, x, y):
+		display.__init__(self, screen, content, input_content, x, y)
+		
+
+
 if __name__ == "__main__":
+	import curses
 	content = \
 		[ 
 		('====================',"====================="),
@@ -68,4 +52,8 @@ if __name__ == "__main__":
 
 	status = SystemStatus_display(screen, status_content, input_content, 0, len(content))
 	status.displayContent()
-	# print(dis.getInput())
+	
+	input_content = "Please enter the cmd sent to device\t"
+	inputdis = Input_display(screen, [], input_content, 0, len(content)+len(status_content))
+	print(inputdis.getInput())
+

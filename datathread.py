@@ -18,7 +18,7 @@ class datathread(Thread, msg_handler):
 
 
 	def stoploop(self):
-		self.stopQ.put(True)
+		self.stopQ.put(True)l
 
 	def cmdrequire(self):
 		cmd, self.last_content = self.msgbuilder.generator()
