@@ -1,86 +1,74 @@
-from display import display
+from display import displayMange as dm
 from threading import Thread
+import time
 
-class fixlogo_display(display):
-	"""docstring for fixlogo_display"""
-	def __init__(self, screen, content, input_content, x, y):
-		display.__init__(self, screen, content, input_content, x, y)
-		
-	def getInput(self):
-		pass
-
-class SystemStatus_display(display):
-
-	def __init__(self, screen, content, input_content, x, y):
-		display.__init__(self, screen, content, input_content, x, y)
-		pass
-
-	def updateStatus(self, status):
-		self.content = status
-
-	def getInput(self):
-		pass
-
-class Input_display(display):
-	"""docstring for Input_display"""
-	def __init__(self, screen, content, input_content, x, y):
-		display.__init__(self, screen, content, input_content, x, y)
-		
-Display_class = {
-	'logo': fixlogo_display,
-	'status': SystemStatus_display,
-	'input': Input_display,
-}
-
-class displayThread(display, Thread):
+class displayThread(Thread, dm):
 	
-	def __init__(self, screen, content, input_content, x, y, sendQ, reciveQ, screenlock):
-		display.__init__(self, screen, content, input_content, x, y)
+	def __init__(self, sendQ, reciveQ, cols, rows, namelist):
 		Thread.__init__(self)
+		screen = curses.initscr()
+		maxy, maxx = screen.getmaxyx()
+		dm.__init__(self,screen, maxx, maxy, namelist, cols, rows)
+
 		
-		self.screenlock = screenlock
+		self.screen = screen
 		self.sendQ = sendQ
 		self.reciveQ = reciveQ
+		screen.nodelay(1)
+
+		curses.nocbreak()
+		curses.curs_set(0)	
+		curses.noecho()
+
+
 		
 	def updateContent(self):
 		if not self.reciveQ.empty():
 			newcontent = self.reciveQ.get()
-			display.updateContent(newcontent)
+			self.updateStatus(newcontent[0],newcontent[1])
 
-	def run():
+	def run(self):
 		while True:
-			screenlock.acquire(blocking = True)
 			self.updateContent()
-			self.displayContent()
-			screenlock.release()
-
+			self.content_display()
+			k = self.screen.getch()
+			if k == ord('q'):
+				break
+			elif k == ord('c'):
+				msg = self.getinput_display()
+				sendQ.put(msg)
 
 if __name__ == "__main__":
 	import curses
-	content = \
-		[ 
-		('====================',"====================="),
-		('Device Specification', '\tHorizontal AFM'),
-		('Version',"\t0.4.1"),
-		('Author','\tLiwen Zhang'),
-		('Email','\tLiVincentZhang@gmail.com'),
-		('====================',"====================="),
-		]
-	input_content = 'No Input!'
-	screen = curses.initscr()
-	logo = fixlogo_display(screen, content, input_content, 0, 0)
-	logo.displayContent()
-	status_content = \
-		[
-			("Task Number\t", "No Count"),
-			("Runing Task\t", "TaskName"),
-			("Mod Number\t","No Count"),
-		]
+	from Queue import Queue
+	content = {
+		'====================':"=====================",
+		'Device Specification': 'Horizontal AFM',
+		'Version':"0.4.1",
+		'Author':'Liwen Zhang',
+		'Email':'LiVincentZhang@gmail.com',
+		'====================':"=====================",
+		'Time':1123
+		}
+	status_content = {
+			"Task Number": "No Count",
+			"Runing Task": "TaskName",
+			"Mod Number":"No Count",
+			'Time':1,
+		}
+	namelist = ['logo','motor','a','b']
+	sendQ = Queue(maxsize = 1000)
+	reciveQ = Queue(maxsize = 1000)
 
-	status = SystemStatus_display(screen, status_content, input_content, 0, len(content))
-	status.displayContent()
-	
-	input_content = "Please enter the cmd sent to device\t"
-	inputdis = Input_display(screen, [], input_content, 0, len(content)+len(status_content))
-	print(inputdis.getInput())
+	th = displayThread(sendQ, reciveQ, 2, 2, namelist)
+	th.start()
+	reciveQ.put(('logo',content))
+	for item in range(0,1000):
+		time.sleep(0.01)
+		status_content['Time'] = item
+		content['Time'] = item
+		reciveQ.put(('motor',status_content))
+		reciveQ.put(('logo',content))
+	th.join()
+
 
