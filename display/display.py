@@ -17,9 +17,9 @@ class display_areas():
 		x, y = 1, 2
 		self.screen.border()
 		self.screen.addstr(1,1, "Status of "+ str(self.name), curses.A_BOLD + curses.A_UNDERLINE)
-		for item in self.content.keys():
-			self.win_status.addstr(y, x, str(item))
-			self.win_values.addstr(y, x, str(self.content[item])+' '*(2))
+		for item in self.content:
+			self.win_status.addstr(y, x, str(item[0]))
+			self.win_values.addstr(y, x, str(item[1])+' '*(2))
 			y += 1
 
 		self.win_status.refresh()
@@ -73,8 +73,12 @@ class displayMange():
 		for item in self.statuslist:
 			self.areadict[item].print_status()
 
+	def single_display(self, name):
+		self.areadict[name].print_status()
+
 	def updateStatus(self, name, newstatus):
 		self.areadict[name].content = newstatus
+		self.single_display(name)
 
 if __name__ == "__main__":
 
@@ -88,12 +92,12 @@ if __name__ == "__main__":
 		screen.getch()
 		curses.endwin()
 	
-	content = {
-			'Device Specification': 'Horizontal AFM',
-			'Version':"0.4.1",
-			'Author':'Liwen Zhang',
-			'Email':'LiVincentZhang@gmail.com',
-			}
+	content = [\
+			['Device Specification', 'Horizontal AFM'],
+			['Version',"0.4.1"],
+			['Author','Liwen Zhang'],
+			['Email','LiVincentZhang@gmail.com'],
+			]
 	curses.wrapper(main)
 
 	
