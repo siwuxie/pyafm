@@ -8,7 +8,6 @@ class display_areas():
 		self.maxy, self.maxx = screen.getmaxyx()
 		self.screen = screen
 		self.name = name
-		print(self.maxy, self.maxx)
 		self.win_status = self.screen.subwin(self.maxy, self.maxx/2, starty, startx)
 		self.win_values = self.screen.subwin(self.maxy, self.maxx/2, starty, startx+self.maxx/2)
 		self.content = {}

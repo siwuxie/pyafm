@@ -62,12 +62,13 @@ if __name__ == "__main__":
 	th = displayThread(sendQ, reciveQ, 2, 2, namelist)
 	th.start()
 	reciveQ.put(('logo',content))
-	for item in range(0,1000):
+	for item in range(0,100):
 		time.sleep(0.01)
 		status_content[3][1] = item
 		content[4][1] = item
 		reciveQ.put(('motor',status_content))
 		reciveQ.put(('logo',content))
 	th.join()
+	curses.endwin()
 
 
