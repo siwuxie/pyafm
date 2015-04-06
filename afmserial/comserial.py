@@ -32,7 +32,7 @@ class transaction:
         msglist = self.dataSendaAcquire()
         if msglist != None:
             self.com.write(msglist)
-        for i in range(0, 1000000): pass
+        # for i in range(0, 1000000): pass
         count = self.com.inWaiting()
         if count >= 10:
             msg = self.com.read(count - count % 10)

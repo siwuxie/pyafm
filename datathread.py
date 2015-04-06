@@ -2,7 +2,8 @@ from threading import Thread
 from Queue import Queue
 
 from afmserial import msg_handler, msg_gen
-from cmdstru.definition import modelist, modedict
+
+# from cmdstru.definition import modelist, modedict
 
 
 class datathread(Thread, msg_handler):
