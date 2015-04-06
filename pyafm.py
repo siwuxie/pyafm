@@ -1,74 +1,54 @@
-import os
-import sys
-
-import datathread as dt
-import afmserial
-import cmdstru
-
-
-content_disp = \
-    [
-        "Atomic\tForce\tMicroscopy\n",
-        "LiVincent.Zhang\tLiVincentzhang@gmail.com\n"
-        "----------------------------------------------\n",
-        "Status of AFM\n"
-        "----------------------------------------------\n",
-    ]
-
-system_disp = {
-"last_command:": "None"
-}
-
-motor_status_disp = {
-"Motor Position": 0,
-"Motor status": 'Stop',
-}
-
-
+from datapool import dataThread
+from display import displayThread
+from afmserial import commThread
+from data import pipeman, stoppipe
+from time import sleep
 class pyafm():
-    """docstring for pyafm"""
 
-    def __init__(self):
-        self.pipe = dt.datathread('/dev/ttyUSB0', 115200)
+    def __init__(self, maxq, namelist):
 
-    def fixed_display(self):
-        os.system('clear')
-        for item in content_disp:
-            sys.stdout.write(item)
+        self.pip_dis2data_x, self.pip_dis2data_y = pipeman(maxq).getPipe()
+        self.pip_ser2data_x, self.pip_ser2data_y = pipeman(maxq).getPipe()
 
-        # for item in self.pipe.modedict.keys():
-        # for item2 in self.pipe.modedict[item].report_status.keys()
-        # 		sys.stdout.write(item2)
-        # 		sys.stdout.write(":\t\t"+str(self.pipe.modedict[item].report_status[item2]+'\n'))
+        self.stoptriger = stoppipe(2)
+        self.stoplist = self.stoptriger.getstops()
 
-        sys.stdout.write("Last command:\t\t" + str(self.pipe.last_content) + '\n')
+        self.displayT = displayThread(self.pip_dis2data_x, 2, 2, namelist, self.stoptriger)
+        self.serialT = commThread('/dev/ttyUSB0', 115200, self.pip_ser2data_x, self.stoplist[0])
+        self.dataT = dataThread(self.pip_ser2data_y, self.pip_dis2data_y, self.stoplist[1])
 
-    def status_display(self, status_disp):
-        for item in status_disp.keys():
-            sys.stdout.write(item)
-            sys.stdout.write(':\t\t' + str(status_disp[item]) + "\n")
+    def tstart(self):
+        self.serialT.start()
+        sleep(1)
+        self.displayT.start()
+        sleep(1)
+        self.dataT.start()
+        sleep(1)
 
-    def waitinput(self):
-        sys.stdout.write("Please enter your selection:\t")
-        case = raw_input()
-        if case == 'cmd':
-            self.pipe.cmdrequire()
-            return False
-        elif case == 'exit':
-            return True
+    def waiting(self):
+        self.displayT.join()
+        self.serialT.join()
+        self.dataT.join()
 
-    def work(self):
-        self.pipe.start()
+    def test(self):
+        i = 0
+        while i < 100:
+            cmd = '\x00\x02\x00\x00\x00\x01\x00\x01\x00\x01'
+            sleep(0.01)
+            self.pip_ser2data_y.sending(cmd)
+            i += 1
+
         while True:
-            self.fixed_display()
-            flag = self.waitinput()
-            if flag:
-                self.pipe.stoploop()
+            result = self.pip_ser2data_x.reciving()
+            if result is not None:
+                # print result.encode('hex')
                 break
 
+        self.waiting()
 
-if __name__ == "__main__":
-    test = pyafm()
-    test.work()
 
-		
+if __name__ == '__main__':
+    test = pyafm(10000, ['motor'])
+    test.tstart()
+    test.test()
+

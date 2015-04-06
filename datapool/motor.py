@@ -1,6 +1,5 @@
 import data
 
-
 init_content = [
     ['Direction', '+'],
     ['Steps', 0],
@@ -30,9 +29,10 @@ class motor_data(data.moduletype):
         if len(cmd) != 10:
             raise ValueError("The lenth of the data is incorrect")
 
-        direction = int(cmd[4:6].encode('hex'), 16)
-        steps = int(cmd[6:8].encode('hex'), 16)
-        motorsta = int(cmd[8:10].encode('hex'), 16)
+        direction = int((cmd[4:6]).encode('hex'), 16)
+        steps = int((cmd[6:8]).encode('hex'), 16)
+        motorsta = int((cmd[8:10]).encode('hex'), 16)
+
 
         if direction == 1:
             self.display_content[0][1] = '+'

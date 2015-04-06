@@ -1,78 +1,97 @@
 import sys
+sys.path.append(r'/home/livincent/workspace/pyafm')
 
+from threading import Thread
+from Queue import Queue
 import serial
 
-
-class msg_gen:
-    def __init__(self, modullist):
-        self.mods = {}
-        for item in modullist:
-            self.mods[item['head_name']] = item
-
-    def _praser(self, para):
-        temp = hex(int(para)).replace('0x', '')
-        while len(temp) < 4: temp = '0' + temp
-        return temp.decode('hex')
-
-    def generator(self):
-        result = ''
-        msgstr = raw_input("Pleas input your mssages to AFM:\t").replace('\n', '').split(' ')
-        if len(msgstr) != 6:
-            sys.stdout.write('Wrong Cmd!\t')
-        elif len(msgstr) == 6:
-            temp = self.mods[msgstr[0]]
-            result = temp['head'] + temp['task'][msgstr[1]] + temp['cmd'][msgstr[2]]
-            result += self._praser(msgstr[3]) + self._praser(msgstr[4]) + self._praser(msgstr[5])
-            return result, msgstr
-        return '', msgstr
+from data import datapipe, pipeman
 
 
-class msg_handler:
+
+class transaction:
     def __init__(self, name, brate):
-        self.name = name
-        self.brate = brate
-        self.com = serial.Serial(self.name, self.brate)
+        self.comm_name = name
+        self.comm_brate = brate
+
+        self.com = None
         pass
 
+    def dataSendAcquire(self):  # only for test
+        print('This function should be overrided')
+        return '\x01\x02\x03\x04\x05\x06\x07\x08\x09\x10'
+
+    def dataDispatch(self, msg):  # only for test
+        print('This function should be overrided')
+        print(msg)
+
     def openSerial(self):
-        if self.com.isOpen():
-            self.com.close()
-            self.com = serial.Serial(self.name, self.brate)
-        else:
-            self.com = serial.Serial(self.name, self.brate)
-            self.com.open()
+        self.com = serial.Serial(self.comm_name, self.comm_brate)
+        if not self.com.isOpen:
+            print("Serial did not open!")
 
     def closeSerial(self):
         self.com.close()
 
-    def msgdeliver(self, msg):
-        # print(msg)#for test only
-        pass
+    def read_send_serial(self):
+        msglist = self.dataSendAcquire()
+        if msglist != None:
+            self.com.write(msglist)
 
-    def msgsendout(self):
-
-        return []  # for test only
-        pass
-
-    def _getmsglist(self, raw_msg):
-        count = len(raw_msg) / 10
-        result = [raw_msg[10 * (i - 1):10 * i] for i in range(1, count + 1)]
-        return result
-        pass
-
-    def serialReadandSend(self):
         count = self.com.inWaiting()
         if count >= 10:
-            # print (count-count%10)
             msg = self.com.read(count - count % 10)
-            # print(msg.encode('hex'))
-            msglist = self._getmsglist(msg)
-            self.msgdeliver(msglist)
-
-        msglist = self.msgsendout()
-        if msglist != None:
-            a = self.com.write(msglist)
-        pass
+            self.dataDispatch(msg)
 
 
+class commThread(Thread, transaction):
+    def __init__(self, name, brate, pipe, stopQ):
+        Thread.__init__(self)
+        transaction.__init__(self, name, brate)
+        self.test_count = 0
+
+        assert isinstance(pipe, datapipe)
+
+        self.pipe = pipe
+        self.stopQ = stopQ
+
+    def dataDispatch(self, msg):
+        # self.reciveQ.put(msg)
+        # print("recived cmd length: "+str(len(msg)) + ' and the Count is  '+str(self.test_count)+ "\t"+msg)
+        # self.test_count += len(msg)
+        # print(msg)
+        for item in range(0, len(msg)/10):
+            self.pipe.sending(msg[item:10+item])
+            # print msg[item:10+item].encode('hex')+'\t\n'
+
+    def dataSendAcquire(self):
+        return self.pipe.reciving()
+
+    def run(self):
+        self.openSerial()
+        self.com.flushInput()
+        while True:
+            self.read_send_serial()
+            if not self.stopQ.empty():
+                self.com.close()
+                break
+
+
+if __name__ == "__main__":
+    from time import sleep
+    pipe1x, pipe1y = pipeman(10000).getPipe()
+    stopQ = Queue(maxsize=1)
+    com = commThread('/dev/ttyUSB0', 115200, pipe1x, stopQ)
+    com.start()
+    i=0
+    count = 0
+    while i<50:
+        a = '12345678901234567890'
+        print("length = "+str(count))
+        pipe1y.sending(a)
+        count += len(a)
+        i += 1
+        sleep(0.01)
+    sleep(1)
+    stopQ.put('')
 

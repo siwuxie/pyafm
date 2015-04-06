@@ -1,4 +1,4 @@
-__author__ = 'LiVincent'
+__author__ = 'livincent'
 
 from Queue import Queue
 
@@ -32,6 +32,19 @@ class pipeman:
 
     def getPipe(self):
         return self.pipe1, self.pipe2
+
+class stoppipe:
+    def __init__(self, number):
+        self.stops = []
+        for item in range(0, number):
+            self.stops.append(Queue(maxsize=1))
+
+    def sendstop(self):
+        for item in self.stops:
+            item.put('')
+
+    def getstops(self):
+        return self.stops
 
 
 class moduletype:

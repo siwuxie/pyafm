@@ -6,22 +6,22 @@ import data
 
 
 class dataThread(Thread):
-    def __init__(self, data2serial, data2display, stopq):
+    def __init__(self, data2serial, data2display, stoptriger):
         Thread.__init__(self)
         assert isinstance(data2serial, data.datapipe)
         assert isinstance(data2display, data.datapipe)
-        assert isinstance(stopq, Queue)
+        assert isinstance(stoptriger, Queue)
 
         self.d2s = data2serial
         self.d2d = data2display
-        self.stopq = stopq
+        self.stoptriger = stoptriger
 
         self.motor = motor.motor_data('motor', motor.motorCmdDict)
 
     def run(self):
         while True:
             if self.motor.is_newcontent:
-                self.d2d.sending(self.motor.get_dispcontent())
+                self.d2d.sending(['motor',self.motor.get_dispcontent()])
 
             recive_disp = self.d2d.reciving()
             if recive_disp is not None:
@@ -32,7 +32,7 @@ class dataThread(Thread):
             if recive_serial is not None:
                 self.motor.work_cmd(recive_serial)
 
-            if not stopq.empty():
+            if not self.stoptriger.empty():
                 break
 
 

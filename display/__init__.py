@@ -1,19 +1,26 @@
+import sys
+sys.path.append(r'/home/livincent/workspace/pyafm')
+
 from threading import Thread
 import time
 
 from display import displayMange as dm
-
+from data import pipeman,datapipe
+import curses
 
 class displayThread(Thread, dm):
-    def __init__(self, sendQ, reciveQ, cols, rows, namelist):
+    def __init__(self, pipe, cols, rows, namelist, stopq):
         Thread.__init__(self)
         screen = curses.initscr()
         maxy, maxx = screen.getmaxyx()
         dm.__init__(self, screen, maxx, maxy, namelist, cols, rows)
 
         self.screen = screen
-        self.sendQ = sendQ
-        self.reciveQ = reciveQ
+        self.stopq = stopq
+
+        assert isinstance(pipe, datapipe)
+
+        self.pipe = pipe
         screen.nodelay(1)
 
         curses.nocbreak()
@@ -21,8 +28,8 @@ class displayThread(Thread, dm):
         curses.noecho()
 
     def updateContent(self):
-        if not self.reciveQ.empty():
-            newcontent = self.reciveQ.get()
+        newcontent = self.pipe.reciving()
+        if newcontent is not None:
             self.updateStatus(newcontent[0], newcontent[1])
 
     def run(self):
@@ -32,17 +39,17 @@ class displayThread(Thread, dm):
             k = self.screen.getch()
 
             if k == ord('q'):
+                self.stopq.sendstop()
                 break
             elif k == ord('c'):
                 msg = self.getinput_display()
-                sendQ.put(msg)
+                self.pipe.sending(msg)
                 self.content_display()
 
 
 if __name__ == "__main__":
     import curses
-    from Queue import Queue
-
+    # from Queue import Queue
     content = [ \
         ['Device Specification', 'Horizontal AFM'],
         ['Version', "0.4.1"],
@@ -57,18 +64,17 @@ if __name__ == "__main__":
         ['Time', 1],
         ]
     namelist = ['logo', 'motor', 'a', 'b']
-    sendQ = Queue(maxsize=1000)
-    reciveQ = Queue(maxsize=1000)
+    pipx, pipy = pipeman(100).getPipe()
 
-    th = displayThread(sendQ, reciveQ, 2, 2, namelist)
+    th = displayThread(pipx, 2, 2, namelist)
     th.start()
-    reciveQ.put(('logo', content))
+    pipy.sending(('logo', content))
     for item in range(0, 100):
         time.sleep(0.01)
         status_content[3][1] = item
         content[4][1] = item
-        reciveQ.put(('motor', status_content))
-        reciveQ.put(('logo', content))
+        pipy.sending(('motor', status_content))
+        pipy.sending(('logo', content))
     th.join()
     curses.endwin()
 
