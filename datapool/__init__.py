@@ -1,26 +1,20 @@
 from threading import Thread
+from Queue import Queue
 
 import motor
 import data
 
 
-# class manger_pipes:
-#
-# def __init__(self, serialmax, displaymax):
-# self.data2serial = data.datapipe(serialmax, serialmax)
-#         self.data2display = data.datapipe(displaymax, displaymax)
-#
-#
-
-
 class dataThread(Thread):
-    def __init__(self, data2serial, data2display):
-
+    def __init__(self, data2serial, data2display, stopq):
+        Thread.__init__(self)
         assert isinstance(data2serial, data.datapipe)
         assert isinstance(data2display, data.datapipe)
+        assert isinstance(stopq, Queue)
 
         self.d2s = data2serial
         self.d2d = data2display
+        self.stopq = stopq
 
         self.motor = motor.motor_data('motor', motor.motorCmdDict)
 
@@ -38,5 +32,34 @@ class dataThread(Thread):
             if recive_serial is not None:
                 self.motor.work_cmd(recive_serial)
 
+            if not stopq.empty():
+                break
+
 
 if __name__ == "__main__":
+
+    pipe1 = data.pipeman(100)
+    pipe2 = data.pipeman(100)
+
+    dp1x, dp1y = pipe1.getPipe()
+    dp2x, dp2y = pipe2.getPipe()
+    stopq = Queue()
+
+    dt = dataThread(dp1x, dp2x, stopq)
+    dt.start()
+
+    import time
+    while True:
+        time.sleep(0.5)
+        temp = dp2y.reciving()
+        print(temp)
+        cmd = 'motor move set_origin 1 2 3'
+        dp2y.sending(cmd)
+        time.sleep(0.5)
+        temp = dp1y.reciving()
+        print(temp)
+        cmd = '\x00\x02\x00\x00\x00\x05\x00\x08\x00\x01'
+        dp1y.sending(cmd)
+
+    dt.join()
+

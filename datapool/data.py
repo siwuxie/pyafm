@@ -8,9 +8,9 @@ datapipe generats a pipe to conmunication with other modules.
 
 
 class datapipe:
-    def __init__(self, maxsend, maxrecive):
-        self.sendq = Queue(maxsize=maxsend)
-        self.reciveq = Queue(maxsize=maxrecive)
+    def __init__(self, sendq, reciveq):
+        self.sendq = sendq
+        self.reciveq = reciveq
 
     def get_queues(self):
         return self.sendq, self.reciveq
@@ -22,6 +22,16 @@ class datapipe:
 
     def sending(self, data):
         self.sendq.put(data)
+
+class pipeman:
+    def __init__(self, maxsize):
+        self.q1 = Queue(maxsize=maxsize)
+        self.q2 = Queue(maxsize=maxsize)
+        self.pipe1 = datapipe(self.q1,self.q2)
+        self.pipe2 = datapipe(self.q2,self.q1)
+
+    def getPipe(self):
+        return self.pipe1, self.pipe2
 
 
 class moduletype:
@@ -59,10 +69,5 @@ class moduletype:
         self.is_newcontent = False
         return self.display_content
 
-        # def
-
-
-
-
-
-
+if __name__ == "__main__":
+    test1 = datapipe()
