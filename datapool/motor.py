@@ -13,10 +13,11 @@ motorCmdDict = {
     'set_origin': '\x00',
     'auto_forward': '\x01',
     'auto_backward': '\x02',
+    'step_forward': '\x03',
+    'step_backward': '\x04',
+    'originate': '\x05',
+
     'stop': '\x03',
-    'step_forward': '\x04',
-    'step_backward': '\x05',
-    'originate': '\x06',
 }
 
 

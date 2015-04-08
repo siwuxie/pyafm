@@ -3,6 +3,8 @@ from display import displayThread
 from afmserial import commThread
 from data import pipeman, stoppipe
 from time import sleep
+
+
 class pyafm():
 
     def __init__(self, maxq, namelist):
@@ -34,7 +36,7 @@ class pyafm():
         i = 0
         while i < 100:
             cmd = '\x00\x02\x00\x00\x00\x01\x00\x01\x00\x01'
-            sleep(0.01)
+            sleep(0.5)
             self.pip_ser2data_y.sending(cmd)
             i += 1
 
@@ -50,5 +52,5 @@ class pyafm():
 if __name__ == '__main__':
     test = pyafm(10000, ['motor'])
     test.tstart()
-    test.test()
-
+    # test.test()
+    test.waiting()
