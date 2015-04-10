@@ -23,6 +23,7 @@ class datapipe:
     def sending(self, data):
         self.sendq.put(data)
 
+
 class pipeman:
     def __init__(self, maxsize):
         self.q1 = Queue(maxsize=maxsize)
@@ -32,6 +33,7 @@ class pipeman:
 
     def getPipe(self):
         return self.pipe1, self.pipe2
+
 
 class stoppipe:
     def __init__(self, number):

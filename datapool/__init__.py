@@ -4,7 +4,6 @@ from Queue import Queue
 import motor
 import data
 
-
 class dataThread(Thread):
     def __init__(self, data2serial, data2display, stoptriger):
         Thread.__init__(self)

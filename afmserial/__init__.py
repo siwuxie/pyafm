@@ -26,6 +26,8 @@ class transaction:
         print(msg)
 
     def openSerial(self):
+        self.com = serial.Serial(self.comm_name, 9600)
+        # the first cmd is to reset the port
         self.com = serial.Serial(self.comm_name, self.comm_brate)
         if not self.com.isOpen:
             print("Serial did not open!")
