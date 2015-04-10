@@ -57,7 +57,6 @@ class moduletype:
         :param cmddicts: a dictionary of cmd in a specific module
         """
         self.name = name
-        # us = status
         self.cmddicts = cmddicts
         self.display_content = []
         self.is_newcontent = True
@@ -65,7 +64,6 @@ class moduletype:
     def _praser(self, para):
         temp = hex(int(para)).replace('0x', '')
         temp = '0' * (4 - len(temp)) + temp
-        # while len(temp) < 4: temp = '0' + temp
         return temp.decode('hex')
 
     def cmdgenerator(self, cmd):

@@ -18,7 +18,8 @@ motorCmdDict = {
     'step_backward': '\x04',
     'originate': '\x05',
 
-    'stop': '\x03',
+    'Tstop': '\x01',
+    'stop': '\x00',
 }
 
 
@@ -50,7 +51,6 @@ class motor_data(data.moduletype):
             self.display_content[3][1] = 'Moving'
         elif motorsta == 0:
             self.display_content[3][1] = 'Stopping'
-
         self.is_newcontent = True
 
 
