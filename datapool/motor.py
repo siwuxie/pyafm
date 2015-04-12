@@ -1,6 +1,8 @@
 import data
 import function as fc
 
+
+
 init_content = [
     ['Direction', '+'],
     ['Steps', 0],
@@ -21,7 +23,6 @@ motorCmdDict = {
     'Tstop': '\x01',
     'stop': '\x00',
 }
-
 
 class motor_data(data.moduletype):
     def __init__(self, name, cmddicts):
@@ -53,13 +54,10 @@ class motor_data(data.moduletype):
             self.display_content[3][1] = 'Stopping'
         self.is_newcontent = True
 
-
-
-
-
-
-
-
-
-
-
+config_dict = {
+    'motor':{
+        'head':motorCmdDict['motor'],
+        'name':'motor',
+        'data':motor_data('motor', motorCmdDict),
+    }
+}
