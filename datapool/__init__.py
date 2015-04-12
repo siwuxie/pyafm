@@ -1,7 +1,6 @@
 from threading import Thread
 from Queue import Queue
-
-import motor
+from cfg import config_list
 import data
 
 class dataThread(Thread):
@@ -15,21 +14,31 @@ class dataThread(Thread):
         self.d2d = data2display
         self.stoptriger = stoptriger
 
-        self.motor = motor.motor_data('motor', motor.motorCmdDict)
+        self.model = dict()
+        self.head = dict()
+
+        for mod in config_list:
+            self.model.update(mod)
+
+        for name in self.model.keys():
+            self.head[self.model[name]['head']] = name
+
 
     def run(self):
         while True:
-            if self.motor.is_newcontent:
-                self.d2d.sending(['motor',self.motor.get_dispcontent()])
+            for mod in self.model.keys():
+                if self.model[mod]['data'].is_newcontent:
+                    self.d2d.sending([self.model[mod]['name'],self.model[mod]['data'].get_dispcontent()])
 
-            recive_disp = self.d2d.reciving()
-            if recive_disp is not None:
-                cmd = self.motor.cmdgenerator(recive_disp)
+            cmd_from_disp = self.d2d.reciving()
+            if cmd_from_disp is not None:
+                cmd = self.model[cmd_from_disp.split(' ')[0]]['data'].cmdgenerator(cmd_from_disp)
                 self.d2s.sending(cmd)
 
             recive_serial = self.d2s.reciving()
             if recive_serial is not None:
-                self.motor.work_cmd(recive_serial)
+                head_name = self.head[recive_serial[2:4][::-1]]
+                self.model[head_name]['data'].work_cmd(recive_serial)
 
             if not self.stoptriger.empty():
                 break

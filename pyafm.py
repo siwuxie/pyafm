@@ -16,7 +16,7 @@ class pyafm():
         self.stoplist = self.stoptriger.getstops()
 
         self.displayT = displayThread(self.pip_dis2data_x, 2, 2, namelist, self.stoptriger)
-        self.serialT = commThread('/dev/ttyUSB0', 115200, self.pip_ser2data_x, self.stoplist[0])
+        self.serialT = commThread('/dev/ttyUSB1', 115200, self.pip_ser2data_x, self.stoplist[0])
         self.dataT = dataThread(self.pip_ser2data_y, self.pip_dis2data_y, self.stoplist[1])
 
     def tstart(self):
