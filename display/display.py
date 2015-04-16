@@ -82,7 +82,7 @@ if __name__ == "__main__":
     def main(screen):
         statuslist = ['motor', 'tto', 'test', 'asfd']
         maxy, maxx = screen.getmaxyx()
-        test = displayMange(screen, maxx, maxy, statuslist, 3, 3)
+        test = displayMange(screen, maxx, maxy, statuslist, 5, 5)
         test.updateStatus('motor', content)
         test.updateStatus('test', content)
         test.content_display()
@@ -96,5 +96,3 @@ if __name__ == "__main__":
         ['Email', 'LiVincentZhang@gmail.com'],
         ]
     curses.wrapper(main)
-
-	
