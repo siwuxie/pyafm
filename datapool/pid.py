@@ -13,13 +13,17 @@ init_content = [
 
 pidCmdDict = {
     'pid': '\x00\x10',
-    'pid_run': '\x00',
-    'set_P': '\x01',
-    'set_I': '\x02',
-    'set_D': '\x03',
+    'set': '\x00',
+    'run': '\x01',
+    'Enable': '\x00',
+    'P': '\x01',
+    'I': '\x02',
+    'D': '\x03',
+    'delay': '\x04',
     'Set_point': '\x05',
-    'Err_report': '\x06',
-    'Z_report': '\x07',
+    'Error': '\x06',
+    'Z': '\x07',
+    'disable': '\x09'
 }
 
 class pid_data(data.moduletype):
@@ -34,20 +38,18 @@ class pid_data(data.moduletype):
         cmd = fc.CMDclean(cmd)
 
         pid_data= int((cmd[4:6]).encode('hex'),16)
-        self.display_content[0][1] = 'enable'
+        self.display_content[0][1] = 'disable'
 
         if pid_data==1:
             pid_run = int((cmd[9:10]).encode('hex'), 16)
+            self.display_content[1][1] =int((cmd[6:7]).encode('hex'), 16)
+            self.display_content[2][1] =int((cmd[7:8]).encode('hex'), 16)
+            self.display_content[3][1] =int((cmd[8:9]).encode('hex'), 16)
 
-            if pid_run ==1:
-                    P_gain = int((cmd[6:7]).encode('hex'), 16)
-                    I_gain = int((cmd[7:8]).encode('hex'), 16)
-                    D_gain = int((cmd[8:9]).encode('hex'), 16)
-                    self.display_content[1][1] =P_gain
-                    self.display_content[2][1] =I_gain
-                    self.display_content[3][1] =D_gain
-            elif pid_run ==0:
-                    self.display_content[0][1] = 'disable'
+            if pid_run == 1:
+                self.display_content[0][1] = 'enable'
+            elif pid_run == 0:
+                self.display_content[0][1] = 'disable'
 
         elif pid_data == 2:
                 Set_point = int((cmd[6:8]).encode('hex'), 16)
