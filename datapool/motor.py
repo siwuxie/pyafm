@@ -1,8 +1,6 @@
 import data
 import function as fc
 
-
-
 init_content = [
     ['Direction', '+'],
     ['Steps', 0],

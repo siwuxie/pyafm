@@ -1,8 +1,6 @@
 import data
 import function as fc
 
-
-
 init_content = [
     ['pid_run', 'disable'],
     ['P_gain', '0'],
