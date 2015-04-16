@@ -4,17 +4,17 @@ import function as fc
 
 
 init_content = [
-    ['pid_run', 'go'],
+    ['pid_run', 'disable'],
     ['P_gain', '0'],
     ['I_gain', '0'],
     ['D_gain', '0'],
     ['Set_point', '0'],
-    ['Error', '0'],
-    ['Z', '0']
-]
+    ['Z', '0'],
+    ['Error', '0']
+ ]
 
 pidCmdDict = {
-    'pid': '\x00\x02',
+    'pid': '\x00\x10',
     'pid_run': '\x00',
     'set_P': '\x01',
     'set_I': '\x02',
@@ -39,16 +39,16 @@ class pid_data(data.moduletype):
         self.display_content[0][1] = 'enable'
 
         if pid_data==1:
-                P_gain = int((cmd[6:7]).encode('hex'), 16)
-                I_gain = int((cmd[7:8]).encode('hex'), 16)
-                D_gain = int((cmd[8:9]).encode('hex'), 16)
-                pid_run = int((cmd[9:10]).encode('hex'), 16)
+            pid_run = int((cmd[9:10]).encode('hex'), 16)
 
-                if pid_run ==1:
+            if pid_run ==1:
+                    P_gain = int((cmd[6:7]).encode('hex'), 16)
+                    I_gain = int((cmd[7:8]).encode('hex'), 16)
+                    D_gain = int((cmd[8:9]).encode('hex'), 16)
                     self.display_content[1][1] =P_gain
                     self.display_content[2][1] =I_gain
                     self.display_content[3][1] =D_gain
-                elif pid_run ==0:
+            elif pid_run ==0:
                     self.display_content[0][1] = 'disable'
 
         elif pid_data == 2:
