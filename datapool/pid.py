@@ -1,8 +1,6 @@
 import data
 import function as fc
 
-
-
 init_content = [
     ['pid_run', 'go'],
     ['P_gain', '0'],
@@ -14,7 +12,7 @@ init_content = [
 ]
 
 pidCmdDict = {
-    'pid': '\x00\x02',
+    'pid': '\x00\x10',
     'pid_run': '\x00',
     'set_P': '\x01',
     'set_I': '\x02',

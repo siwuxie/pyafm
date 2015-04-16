@@ -4,6 +4,6 @@ __author__ = 'livincent'
 import motor
 import pid
 
-config_list = [motor.config_dict]
+config_list = [motor.config_dict, pid.config_dict]
 
 
